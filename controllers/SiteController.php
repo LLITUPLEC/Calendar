@@ -9,6 +9,7 @@ use yii\web\Response;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
 use app\models\ContactForm;
+use yii\web\UploadedFile;
 
 class SiteController extends Controller
 {
@@ -130,4 +131,5 @@ class SiteController extends Controller
 //        echo \Yii::$app->session->get('last_page', 'Not  set');
         return $this->render('about');
     }
+
 }
