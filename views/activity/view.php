@@ -5,7 +5,9 @@
  */
 
 use app\models\Activity;
+use yii\helpers\ArrayHelper;
 use yii\web\View; ?>
 
 <h1>Test Activity view</h1>
 <h2><?= $model->title?></h2>
+

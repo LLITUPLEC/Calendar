@@ -13,6 +13,6 @@ class Activity extends Model
     public $dayEnd;
     public $userID;
     public $description;
-    public $repeatTask; // добавил свойство, которое будет отвечать за повтор события
-    public $onlyOneTask; // добавил свойство, которое будет блокировать остальные события в определённую дату
+    public $repeatTask = false; // добавил свойство, которое будет отвечать за повтор события
+    public $onlyOneTask = true; // добавил свойство, которое будет блокировать остальные события в определённую дату
 }

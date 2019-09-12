@@ -127,6 +127,7 @@ class SiteController extends Controller
      */
     public function actionAbout()
     {
+//        echo \Yii::$app->session->get('last_page', 'Not  set');
         return $this->render('about');
     }
 }
