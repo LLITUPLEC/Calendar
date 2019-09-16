@@ -13,23 +13,30 @@ class ActivityController extends Controller
      */
     public function actionIndex()
     {
-        return $this->render('index');
+        $db = Yii::$app->db;
+
+        $rows = $db->createCommand('SELECT * FROM activities')->queryAll();
+
+        return $this->render('index', [
+            'activities' => $rows
+        ]);
     }
+
     /**
      * Просмотр выбранного события
+     * @param $id
      * @return string
+     * @throws \yii\db\Exception
      */
-    public function actionView()
+    public function actionView($id)
     {
-        $model = new Activity([
-            'title' => 'Событие №1',
-            'description' => 'Небольшое описание',
-            'date_start' => '2019-09-12',
-            'date_end' => '2019-09-13',
-            'blocked' => true,
-            'repeat' => false,
-            'user_id' => 1,
-        ]);
+
+        $db = Yii::$app->db;
+
+        $model = $db->createCommand('SELECT * FROM activities WHERE id=:id',[
+            ':id' => $id,
+        ])->queryOne();
+
         return $this->render(
             'view',
             compact('model')
@@ -72,4 +79,6 @@ class ActivityController extends Controller
         }
         return 'Activity@Submit';
     }
+
+
 }

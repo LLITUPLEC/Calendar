@@ -1,6 +1,7 @@
 <?php
 /**
  * @var $this yii\web\View
+ * @var array $activities
  */
 use yii\helpers\Html;
 ?>
@@ -12,3 +13,12 @@ use yii\helpers\Html;
         <?= Html::a('Создать', ['activity/create'], ['class' => 'btn btn-success pull-right']) ?>
     </div>
 </div>
+<ul>
+    <?php foreach ($activities as $item) { ?>
+        <li>
+            <pre>
+            <?= var_dump($item); ?>
+            </pre>
+        </li>
+    <?php } ?>
+</ul>

@@ -13,14 +13,14 @@ use yii\helpers\Html;
     </div>
 </div>
 
-<h2><?= Html::encode($model->title) ?></h2>
+<h2><?= Html::encode($model['title']) ?></h2>
 
-<p><?= Html::encode($model->description) ?></p>
+<p><?= Html::encode($model['description']) ?></p>
 
 <ul>
-    <li><strong>Пользователь: </strong><?= $model->user_id ?></li>
-    <li><strong>Повтор: </strong><?= $model->repeat ?></li>
-    <li><strong>Блокирующее: </strong><?= $model->blocked ?></li>
-    <li><strong>Начало: </strong><?= $model->date_start ?></li>
-    <li><strong>Окончание: </strong><?= $model->date_end ?></li>
+    <li><strong>Пользователь: </strong><?= $model['user_id'] ?></li>
+    <li><strong>Повтор: </strong><?= $model['repeat'] ?></li>
+    <li><strong>Блокирующее: </strong><?= $model['blocked'] ?></li>
+    <li><strong>Начало: </strong><?= $model['date_start'] ?></li>
+    <li><strong>Окончание: </strong><?= $model['date_end'] ?></li>
 </ul>
