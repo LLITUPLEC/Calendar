@@ -32,7 +32,7 @@ class Activity extends Model
     public function rules()
     {
         return [
-            [['title','description','userID'], 'required'],
+            [['title','description','user_id'], 'required'],
             [['title'], 'string', 'min' => 5, 'max' => 25],
             [['description'], 'string', 'min' => 10, 'max' => 150],
             [['date_start', 'date_end'], 'date', 'format' => 'php:Y-m-d'],

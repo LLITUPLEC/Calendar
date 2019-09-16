@@ -12,13 +12,13 @@ use yii\widgets\ActiveForm;
 <div class="activity-form">
     <?php $form = ActiveForm::begin(['action' => ['/activity/submit']]); ?>
 
-    <?= $form->field($model, 'userID')->textInput(['autocomplete' => 'off']) ?>
+    <?= $form->field($model, 'user_id')->textInput(['autocomplete' => 'off']) ?>
     <?= $form->field($model, 'title')->textInput(['autocomplete' => 'off']) ?>
     <?= $form->field($model, 'description')->textarea(['rows' => 5]) ?>
     <?= $form->field($model, 'repeat')->checkbox() ?>
     <?= $form->field($model, 'blocked')->checkbox() ?>
-    <?= $form->field($model, 'data_start')->textInput(['type' => 'date'])?>
-    <?= $form->field($model, 'data_end')->textInput(['type' => 'date'])?>
+    <?= $form->field($model, 'date_start')->textInput(['type' => 'date'])?>
+    <?= $form->field($model, 'date_end')->textInput(['type' => 'date'])?>
     <?= $form->field($model, 'attachments[]')->fileInput(['multiple' => true])?>
 
     <div class="form-group" style="margin-top: 40px">
