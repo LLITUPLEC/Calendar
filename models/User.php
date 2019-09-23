@@ -1,9 +1,4 @@
 <?php
-/**
- * Created by Artyom Manchenkov
- * artyom@manchenkoff.me
- * manchenkoff.me © 2019
- */
 
 namespace app\models;
 
@@ -39,10 +34,10 @@ class User extends ActiveRecord implements IdentityInterface
         return [
             TimestampBehavior::class,
 
-            //[
-            //    'class' => TimestampBehavior::class,
-            //    'updatedAtAttribute' => 'last_change_at',
-            //],
+            [
+                'class' => TimestampBehavior::class,
+                'updatedAtAttribute' => 'last_change_at',
+            ],
         ];
     }
 
