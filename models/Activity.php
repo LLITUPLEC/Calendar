@@ -4,6 +4,7 @@ namespace app\models;
 
 use yii\behaviors\BlameableBehavior;
 use yii\db\ActiveRecord;
+use Yii;
 
 /**
  * Класс - Событие
@@ -55,12 +56,33 @@ class Activity extends ActiveRecord
             }],
 
             // TODO: валидация даты (не раньше чем date_start)
-            //['date_end', 'validateDate'],
+            ['date_end', 'MyValidateDate'],
 
             [['user_id'], 'integer'],
 
             [['repeat', 'blocked'], 'boolean'],
         ];
+    }
+
+    public function MyValidateDate(){
+
+        $currentDate = Yii::$app->getFormatter()->asDate(time());
+
+        if ($this->date_start > $this->date_end){
+            $this->addError('date_start', '"Проверьте дату окончания"');
+            $this->addError('date_end', '"Дата окончания", не может быть раньше "даты начала');
+        }
+
+        if ($this->isNewRecord){
+            if ($currentDate > $this->date_start) {
+                $this->addError('date_start', '"Дата начала", не может быть раньше текущей даты');
+            }
+
+            if ($currentDate > $this->date_end){
+                $this->addError('date_end', '"Дата окончания", не может быть раньше текущей даты');
+            }
+        }
+
     }
 
     /**
