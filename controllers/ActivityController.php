@@ -1,84 +1,121 @@
 <?php
+
 namespace app\controllers;
+
 use app\models\Activity;
 use Yii;
-use yii\helpers\VarDumper;
+use yii\data\ActiveDataProvider;
+use yii\filters\AccessControl;
 use yii\web\Controller;
-use yii\web\UploadedFile;
+
 class ActivityController extends Controller
 {
+    /**
+     * Настройка поведений контроллера (ACF доступы)
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::class,
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['index', 'view', 'update', 'delete', 'submit'],
+                        'roles' => ['@'],
+                    ],
+                ],
+            ],
+        ];
+    }
+
     /**
      * Просмотр всех событий
      * @return string
      */
     public function actionIndex()
     {
-        $db = Yii::$app->db;
+        // TODO: получение всех событий через pagination (GridView)
 
-        $rows = $db->createCommand('SELECT * FROM activities')->queryAll();
+        $query = Activity::find();
+
+        $provider = new ActiveDataProvider([
+            'query' => $query,
+            'pagination' => [
+                'validatePage' => false,
+            ],
+        ]);
 
         return $this->render('index', [
-            'activities' => $rows
+            'provider' => $provider,
         ]);
     }
 
     /**
      * Просмотр выбранного события
-     * @param $id
+     *
+     * @param int $id
+     *
      * @return string
-     * @throws \yii\db\Exception
      */
-    public function actionView($id)
+    public function actionView(int $id)
     {
+        // TODO: просмотр события по GET $id (DetailView)
 
-        $db = Yii::$app->db;
+        $item = Activity::findOne($id);
 
-        $model = $db->createCommand('SELECT * FROM activities WHERE id=:id',[
-            ':id' => $id,
-        ])->queryOne();
-
-        return $this->render(
-            'view',
-            compact('model')
-        );
+        return $this->render('view', [
+            'model' => $item,
+        ]);
     }
+
     /**
      * Создание нового события
+     *
+     * @param int|null $id
+     *
      * @return string
      */
-    public function actionCreate()
+    public function actionUpdate(int $id = null)
     {
-        $model = new Activity();
-        return $this->render(
-            'create',
-            compact('model')
-        );
+        // TODO: показ ошибки 404, если нет такой статьи или нет прав на редактирование
+
+        $item = $id ? Activity::findOne($id) : new Activity();
+
+        return $this->render('edit', [
+            'model' => $item,
+        ]);
     }
+
     /**
      * Удаление выбранного события
+     *
+     * @param int $id
+     *
      * @return string
      */
-    public function actionDelete()
+    public function actionDelete(int $id)
     {
-        return 'Activity@delete';
+        // TODO: удаление записи по $id + flash Alert, или показ ошибки, если нет прав на редактирование
+
+        Activity::deleteAll(['id' => $id]);
+
+        return $this->redirect(['activity/index']);
     }
-    /**
-     * Тестовый метод для показа данных формы
-     * @return string
-     */
+
     public function actionSubmit()
     {
-        $model = new Activity();
-        if ($model->load(Yii::$app->request->post())) {
-            $model->attachments = UploadedFile::getInstances($model, 'attachments');
-            if ($model->validate()) {
-                return "Success: " . VarDumper::export($model->attributes);
-            } else {
-                return "Failed: " . VarDumper::export($model->errors);
+        // TODO: сохранение или обновление записей из POST + flash Alert + redirect (проверка доступа)
+
+        $form = new Activity();
+
+        if ($form->load(Yii::$app->request->post()) && $form->validate()) {
+            if ($form->save()) {
+                return $this->redirect(['activity/view', 'id' => $form->id]);
             }
         }
-        return 'Activity@Submit';
+
+        return $this->goBack();
     }
-
-
 }

@@ -2,14 +2,14 @@
 
 namespace app\controllers;
 
+use app\models\forms\LoginForm;
+use app\models\forms\SignupForm;
 use Yii;
+use yii\captcha\CaptchaAction;
 use yii\filters\AccessControl;
 use yii\web\Controller;
+use yii\web\ErrorAction;
 use yii\web\Response;
-use yii\filters\VerbFilter;
-use app\models\LoginForm;
-use app\models\ContactForm;
-use yii\web\UploadedFile;
 
 class SiteController extends Controller
 {
@@ -20,7 +20,7 @@ class SiteController extends Controller
     {
         return [
             'access' => [
-                'class' => AccessControl::className(),
+                'class' => AccessControl::class,
                 'only' => ['logout'],
                 'rules' => [
                     [
@@ -28,12 +28,6 @@ class SiteController extends Controller
                         'allow' => true,
                         'roles' => ['@'],
                     ],
-                ],
-            ],
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'logout' => ['post'],
                 ],
             ],
         ];
@@ -45,32 +39,23 @@ class SiteController extends Controller
     public function actions()
     {
         return [
-            'error' => [
-                'class' => 'yii\web\ErrorAction',
-            ],
-            'captcha' => [
-                'class' => 'yii\captcha\CaptchaAction',
-                'fixedVerifyCode' => YII_ENV_TEST ? 'testme' : null,
-            ],
+            'error' => ['class' => ErrorAction::class],
+            'captcha' => ['class' => CaptchaAction::class, 'fixedVerifyCode' => YII_ENV_TEST ? 'testme' : null],
         ];
     }
 
     /**
-     * Displays homepage.
+     * Показать главную страницу
      *
      * @return string
      */
     public function actionIndex()
     {
-        if (!Yii::$app->session->has('page')) {
-            Yii::$app->session->set('page', 'Hello-Page');
-        }
-
         return $this->render('index');
     }
 
     /**
-     * Login action.
+     * Страница с формой входа на сайт
      *
      * @return Response|string
      */
@@ -81,18 +66,43 @@ class SiteController extends Controller
         }
 
         $model = new LoginForm();
+
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
             return $this->goBack();
         }
 
         $model->password = '';
+
         return $this->render('login', [
             'model' => $model,
         ]);
     }
 
     /**
-     * Logout action.
+     * Страница с формой регистрации
+     *
+     * @return Response|string
+     * @throws \yii\base\Exception
+     */
+    public function actionSignup()
+    {
+        if (!Yii::$app->user->isGuest) {
+            return $this->goHome();
+        }
+
+        $model = new SignupForm();
+
+        if ($model->load(Yii::$app->request->post()) && $model->register()) {
+            return $this->goHome();
+        }
+
+        return $this->render('signup', [
+            'model' => $model,
+        ]);
+    }
+
+    /**
+     * Выход из пользовательской сессии
      *
      * @return Response
      */
@@ -102,34 +112,4 @@ class SiteController extends Controller
 
         return $this->goHome();
     }
-
-    /**
-     * Displays contact page.
-     *
-     * @return Response|string
-     */
-    public function actionContact()
-    {
-        $model = new ContactForm();
-        if ($model->load(Yii::$app->request->post()) && $model->contact(Yii::$app->params['adminEmail'])) {
-            Yii::$app->session->setFlash('contactFormSubmitted');
-
-            return $this->refresh();
-        }
-        return $this->render('contact', [
-            'model' => $model,
-        ]);
-    }
-
-    /**
-     * Displays about page.
-     *
-     * @return string
-     */
-    public function actionAbout()
-    {
-//        echo \Yii::$app->session->get('last_page', 'Not  set');
-        return $this->render('about');
-    }
-
 }

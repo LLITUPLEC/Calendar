@@ -1,4 +1,9 @@
 <?php
+/**
+ * Created by Artyom Manchenkov
+ * artyom@manchenkoff.me
+ * manchenkoff.me © 2019
+ */
 
 /**
  * @var $this yii\web\View
@@ -9,7 +14,7 @@
 use yii\bootstrap\ActiveForm;
 use yii\helpers\Html;
 
-$this->title = 'Вход на сайт';
+$this->title = 'Регистрация';
 $this->params['breadcrumbs'][] = $this->title;
 
 ?>
@@ -17,9 +22,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <div class="text-center" style="padding: 20px 0 70px 0;">
         <h1><?= Html::encode($this->title) ?></h1>
 
-        <p>Для входа на сайт пройдите аутентификацию</p>
-
-        <?= Html::a('Нет аккаунта?', ['site/signup'], ['class' => 'btn btn-lg btn-success', 'style' => 'margin-top: 30px']) ?>
+        <p>Заполните форму для регистрации</p>
     </div>
 
     <?php $form = ActiveForm::begin([
@@ -35,20 +38,11 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <?= $form->field($model, 'password')->passwordInput() ?>
 
-    <?= $form->field($model, 'rememberMe')->checkbox([
-        'template' => "<div class=\"col-lg-offset-1 col-lg-3\">{input} {label}</div>\n<div class=\"col-lg-8\">{error}</div>",
-    ]) ?>
-
     <div class="form-group">
         <div class="col-lg-offset-1 col-lg-11">
-            <?= Html::submitButton('Войти', ['class' => 'btn btn-primary', 'name' => 'login-button']) ?>
+            <?= Html::submitButton('Продолжить', ['class' => 'btn btn-primary', 'name' => 'login-button']) ?>
         </div>
     </div>
 
     <?php ActiveForm::end(); ?>
-
-    <div class="col-lg-offset-1" style="color:#999;">
-        Логины: <strong>admin, manager, user</strong> <br>
-        Пароль: <strong>123123123</strong>.
-    </div>
 </div>

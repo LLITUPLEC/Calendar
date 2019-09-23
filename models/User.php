@@ -1,74 +1,96 @@
 <?php
+/**
+ * Created by Artyom Manchenkov
+ * artyom@manchenkoff.me
+ * manchenkoff.me © 2019
+ */
 
 namespace app\models;
 
-class User extends \yii\base\BaseObject implements \yii\web\IdentityInterface
+use Yii;
+use yii\base\Exception;
+use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveRecord;
+use yii\web\IdentityInterface;
+
+/**
+ * Класс - Пользователь
+ *
+ * @package app\models
+ *
+ * @property int $id [int(11)]  Номер пользователя
+ * @property string $username [varchar(255)]  Логин
+ * @property string $password_hash [varchar(255)]  Хеш пароля
+ * @property string $auth_key [varchar(255)]  Ключ аутентификации
+ * @property string $access_token [varchar(255)]  Ключ мгновенного доступа
+ * @property int $created_at [int(11)]  Дата создания записи
+ * @property int $updated_at [int(11)]  Дата последнего редактирования
+ *
+ * @property-write string $password Чистый пароль
+ */
+class User extends ActiveRecord implements IdentityInterface
 {
-    public $id;
-    public $username;
-    public $password;
-    public $authKey;
-    public $accessToken;
+    /**
+     * Набор поведений
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            TimestampBehavior::class,
 
-    private static $users = [
-        '100' => [
-            'id' => '100',
-            'username' => 'admin',
-            'password' => 'admin',
-            'authKey' => 'test100key',
-            'accessToken' => '100-token',
-        ],
-        '101' => [
-            'id' => '101',
-            'username' => 'demo',
-            'password' => 'demo',
-            'authKey' => 'test101key',
-            'accessToken' => '101-token',
-        ],
-    ];
-
+            //[
+            //    'class' => TimestampBehavior::class,
+            //    'updatedAtAttribute' => 'last_change_at',
+            //],
+        ];
+    }
 
     /**
-     * {@inheritdoc}
+     * Названия атрибутов модели
+     * @return array
+     */
+    public function attributeLabels()
+    {
+        return [
+            'id' => '#',
+            'username' => 'Логин',
+            'password_hash' => 'Пароль',
+            'auth_key' => 'Ключ авторизации',
+            'access_token' => 'Токен доступа',
+            'created_at' => 'Дата создания',
+            'updated_at' => 'Дата последнего изменения',
+        ];
+    }
+
+    /**
+     * Поиск пользователя по ID
+     *
+     * @param int|string $id
+     *
+     * @return User|IdentityInterface|null
      */
     public static function findIdentity($id)
     {
-        return isset(self::$users[$id]) ? new static(self::$users[$id]) : null;
+        return self::findOne(['id' => $id]);
     }
 
     /**
-     * {@inheritdoc}
+     * Поиск пользователя по токену мгновенного доступа
+     *
+     * @param mixed $token
+     * @param null $type
+     *
+     * @return User|IdentityInterface|null
      */
     public static function findIdentityByAccessToken($token, $type = null)
     {
-        foreach (self::$users as $user) {
-            if ($user['accessToken'] === $token) {
-                return new static($user);
-            }
-        }
-
-        return null;
+        return self::findOne(['access_token' => $token]);
     }
 
     /**
-     * Finds user by username
-     *
-     * @param string $username
-     * @return static|null
-     */
-    public static function findByUsername($username)
-    {
-        foreach (self::$users as $user) {
-            if (strcasecmp($user['username'], $username) === 0) {
-                return new static($user);
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * {@inheritdoc}
+     * Обращение к уникальному ID пользователя
+     * @return int|string
      */
     public function getId()
     {
@@ -76,29 +98,68 @@ class User extends \yii\base\BaseObject implements \yii\web\IdentityInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Обращение к ключу авторизации (для авто-логина через cookie)
+     * @return string
      */
     public function getAuthKey()
     {
-        return $this->authKey;
+        return $this->auth_key;
     }
 
     /**
-     * {@inheritdoc}
+     * Валидация ключа авторизации
+     *
+     * @param string $authKey
+     *
+     * @return bool
      */
     public function validateAuthKey($authKey)
     {
-        return $this->authKey === $authKey;
+        return $this->auth_key == $authKey;
     }
 
     /**
-     * Validates password
+     * Поиск пользователя по логину username
      *
-     * @param string $password password to validate
-     * @return bool if password provided is valid for current user
+     * @param $username
+     *
+     * @return User|null
+     */
+    public static function findByUsername($username)
+    {
+        return self::findOne(['username' => $username]);
+    }
+
+    /**
+     * Валидация хешей паролей
+     *
+     * @param $password
+     *
+     * @return bool
      */
     public function validatePassword($password)
     {
-        return $this->password === $password;
+        return Yii::$app->security->validatePassword($password, $this->password_hash);
+    }
+
+    /**
+     * Генерация случайной строки для записи в токен авторизации
+     * @throws Exception
+     */
+    public function generateAuthKey()
+    {
+        $this->auth_key = Yii::$app->security->generateRandomString();
+    }
+
+    /**
+     * Магический сеттер для установки пароля с автоматической генерацией хеша
+     *
+     * @param $password
+     *
+     * @throws Exception
+     */
+    public function setPassword($password)
+    {
+        $this->password_hash = Yii::$app->security->generatePasswordHash($password);
     }
 }
