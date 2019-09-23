@@ -52,6 +52,7 @@ AppAsset::register($this);
         'items' => [
             ['label' => 'Главная', 'url' => ['/site/index']],
             ['label' => 'События', 'url' => ['/activity/index']],
+            ['label' => 'Панель управления', 'url' => ['/user/index']],
 
             Yii::$app->user->isGuest
                 ? ['label' => 'Вход', 'url' => ['/site/login']]
