@@ -14,6 +14,23 @@ use yii\widgets\Breadcrumbs;
 
 AppAsset::register($this);
 
+$navigationItems = [
+    ['label' => 'Главная', 'url' => ['/site/index']],
+];
+
+if (Yii::$app->user->can('manager')) {
+    $navigationItems[] = ['label' => 'Пользователи', 'url' => ['/user/index']];
+}
+
+if (Yii::$app->user->isGuest) {
+    $navigationItems[] = ['label' => 'Вход', 'url' => ['/site/login']];
+} else {
+    $navigationItems[] = ['label' => 'Календарь', 'url' => ['/calendar/index']];
+    $navigationItems[] = ['label' => 'События', 'url' => ['/activity/index']];
+    $navigationItems[] = ['label' => 'Профиль', 'url' => ['/user/profile']];
+    $navigationItems[] = ['label' => 'Выйти', 'url' => ['/site/logout']];
+}
+
 ?>
 
 <?php $this->beginPage() ?>
@@ -49,15 +66,7 @@ AppAsset::register($this);
 
     echo Nav::widget([
         'options' => ['class' => 'navbar-nav navbar-right'],
-        'items' => [
-            ['label' => 'Главная', 'url' => ['/site/index']],
-            ['label' => 'События', 'url' => ['/activity/index']],
-            ['label' => 'Панель управления', 'url' => ['/user/index']],
-
-            Yii::$app->user->isGuest
-                ? ['label' => 'Вход', 'url' => ['/site/login']]
-                : ['label' => 'Выйти', 'url' => ['/site/logout']],
-        ],
+        'items' => $navigationItems,
     ]);
 
     NavBar::end();

@@ -11,7 +11,7 @@ use yii\widgets\ActiveForm;
 
 ?>
 <div class="activity-form">
-    <?php $form = ActiveForm::begin(['action' => ['/activity/submit']]); ?>
+    <?php $form = ActiveForm::begin(); ?>
 
     <?= $form->field($model, 'title')->textInput(['autocomplete' => 'off']) ?>
     <?= $form->field($model, 'date_start')->textInput(['type' => 'date']) ?>

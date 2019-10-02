@@ -9,15 +9,18 @@ use app\models\Activity;
 use yii\data\ActiveDataProvider;
 use yii\grid\ActionColumn;
 use yii\grid\GridView;
-use yii\grid\SerialColumn;
 use yii\helpers\Html;
 
 $columns = [
-    [
-        'class' => SerialColumn::class,
-        'header' => 'Псевдо-порядковый номер',
-    ],
-
+    //[
+    //    'class' => SerialColumn::class,
+    //    'header' => 'Псевдо-порядковый номер',
+    //],
+    //[
+    //    // activity.id - пример перезаписи названия столбца
+    //    'label' => 'Порядковый номер',
+    //    'attribute' => 'id',
+    //],
     [
         // activity.id - пример перезаписи значения
         'label' => 'Порядковый номер',
@@ -39,18 +42,13 @@ $columns = [
     ],
     'repeat:boolean', // Yii::$app->formatter->asBoolean(...)
     'blocked:boolean',
+    'created_at:date',
 ];
 
 if (Yii::$app->user->can('user')) {
     $columns[] = [
         'class' => ActionColumn::class,
         'header' => 'Операции',
-        'template' => '{view} {update} {delete} {edit}',
-        'buttons' => [
-            'edit' => function ($url, $model, $key) {
-                return Html::a('Custom', $url);
-            }
-        ],
     ];
 }
 

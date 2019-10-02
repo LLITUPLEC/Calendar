@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\components\CachedRecordBehavior;
 use Yii;
 use yii\base\Exception;
 use yii\behaviors\TimestampBehavior;
@@ -22,6 +23,7 @@ use yii\web\IdentityInterface;
  * @property int $updated_at [int(11)]  Дата последнего редактирования
  *
  * @property-write string $password Чистый пароль
+ * @mixin CachedRecordBehavior
  */
 class User extends ActiveRecord implements IdentityInterface
 {
@@ -34,9 +36,14 @@ class User extends ActiveRecord implements IdentityInterface
         return [
             TimestampBehavior::class,
 
+            //[
+            //    'class' => TimestampBehavior::class,
+            //    'updatedAtAttribute' => 'last_change_at',
+            //],
+
             [
-                'class' => TimestampBehavior::class,
-                'updatedAtAttribute' => 'last_change_at',
+                'class' => CachedRecordBehavior::class,
+                'prefix' => 'user',
             ],
         ];
     }

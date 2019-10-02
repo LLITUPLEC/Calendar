@@ -19,7 +19,9 @@ $config = [
         '@npm' => '@vendor/npm-asset',
     ],
 
-    'modules' => [],
+    'modules' => [
+        //
+    ],
 
     'components' => [
         'request' => [
@@ -41,7 +43,8 @@ $config = [
 
         'mailer' => [
             'class' => yii\swiftmailer\Mailer::class,
-            'useFileTransport' => true,
+            'useFileTransport' => false, // phpmail / sendmail()
+            'transport' => Swift_SmtpTransport::class,
         ],
 
         'log' => [
@@ -59,7 +62,10 @@ $config = [
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
-            'rules' => [],
+            //'enableStrictParsing' => true,
+            'rules' => [
+                //
+            ],
         ],
 
         'authManager' => [

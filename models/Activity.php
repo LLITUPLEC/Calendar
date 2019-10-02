@@ -2,9 +2,12 @@
 
 namespace app\models;
 
+use app\components\CachedRecordBehavior;
 use yii\behaviors\BlameableBehavior;
+use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
-use Yii;
+use yii\helpers\Url;
 
 /**
  * Класс - Событие
@@ -21,6 +24,9 @@ use Yii;
  * @property bool $blocked [tinyint(1)]  Блокирует ли даты
  *
  * @property-read User $user
+ *
+ * @property int $created_at [int(11)]
+ * @property int $updated_at [int(11)]
  */
 class Activity extends ActiveRecord
 {
@@ -33,6 +39,14 @@ class Activity extends ActiveRecord
                 'class' => BlameableBehavior::class,
                 'createdByAttribute' => 'user_id', // created_by
                 'updatedByAttribute' => 'user_id', // updated_by
+            ],
+
+            TimestampBehavior::class,
+
+            // поведение для удаления/сохранения в кеш
+            [
+                'class' => CachedRecordBehavior::class,
+                'prefix' => 'activity',
             ],
         ];
     }
@@ -55,34 +69,12 @@ class Activity extends ActiveRecord
                 return $this->date_start;
             }],
 
-            // TODO: валидация даты (не раньше чем date_start)
-            ['date_end', 'MyValidateDate'],
+            ['date_end', 'validateDate'],
 
             [['user_id'], 'integer'],
 
             [['repeat', 'blocked'], 'boolean'],
         ];
-    }
-
-    public function MyValidateDate(){
-
-        $currentDate = Yii::$app->getFormatter()->asDate(time());
-
-        if ($this->date_start > $this->date_end){
-            $this->addError('date_start', '"Проверьте дату окончания"');
-            $this->addError('date_end', '"Дата окончания", не может быть раньше "даты начала');
-        }
-
-        if ($this->isNewRecord){
-            if ($currentDate > $this->date_start) {
-                $this->addError('date_start', '"Дата начала", не может быть раньше текущей даты');
-            }
-
-            if ($currentDate > $this->date_end){
-                $this->addError('date_end', '"Дата окончания", не может быть раньше текущей даты');
-            }
-        }
-
     }
 
     /**
@@ -100,15 +92,49 @@ class Activity extends ActiveRecord
             'description' => 'Описание события',
             'repeat' => 'Повтор',
             'blocked' => 'Блокирующее',
+            'created_at' => 'Дата создания',
+            'updated_at' => 'Дата последнего изменения',
         ];
     }
 
     /**
      * Магический метод для получение зависимого объекта из БД
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getUser()
     {
         return $this->hasOne(User::class, ['id' => 'user_id']);
+    }
+
+    /**
+     * Проверка даты окончания события (не раньше даты начала)
+     *
+     * @param $attr
+     */
+    public function validateDate($attr) // date_end
+    {
+        $start = strtotime($this->date_start);
+        $end = strtotime($this->{$attr});
+
+        if ($start && $end) {
+            if ($end < $start) {
+                $this->addError($attr, 'Некорректный формат даты');
+            }
+        }
+    }
+
+    /**
+     * Преобразование в массив для календаря
+     * @return array
+     */
+    public function toEvent()
+    {
+        return [
+            'id' => $this->id,
+            'title' => $this->title,
+            'start' => $this->date_start,
+            'end' => $this->date_end,
+            'url' => Url::to(['/activity/view', 'id' => $this->id]),
+        ];
     }
 }

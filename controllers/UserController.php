@@ -2,38 +2,36 @@
 
 namespace app\controllers;
 
-use Yii;
+use app\models\Activity;
+use app\models\forms\SignupForm;
+use app\models\forms\UpdateUserForm;
 use app\models\User;
+use Yii;
 use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
 
 /**
- * UserController implements the CRUD actions for User model.
+ * Контроллер для управления пользователями
+ * @package app\controllers
  */
 class UserController extends Controller
 {
     /**
-     * {@inheritdoc}
+     * Набор поведений
+     * @return array
      */
     public function behaviors()
     {
         return [
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'delete' => ['POST'],
-                ],
-            ],
             'access' => [
+                // доступ только для админов
                 'class' => AccessControl::class,
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['index', 'view', 'create', 'update', 'delete',],
-                        'roles' => ['@'],
+                        'roles' => ['admin'],
                     ],
                 ],
             ],
@@ -41,8 +39,8 @@ class UserController extends Controller
     }
 
     /**
-     * Lists all User models.
-     * @return mixed
+     * Просмотр списка пользователей
+     * @return string
      */
     public function actionIndex()
     {
@@ -56,10 +54,11 @@ class UserController extends Controller
     }
 
     /**
-     * Displays a single User model.
-     * @param integer $id
-     * @return mixed
-     * @throws NotFoundHttpException if the model cannot be found
+     * Просмотр информации по выбранному пользователю
+     * @param $id
+     *
+     * @return string
+     * @throws NotFoundHttpException
      */
     public function actionView($id)
     {
@@ -68,16 +67,24 @@ class UserController extends Controller
         ]);
     }
 
+    public function actionActivities($id)
+    {
+        $user = User::findIdentity($id);
+
+        return $user->username;
+        //var_dump($user->activities);
+    }
+
     /**
-     * Creates a new User model.
-     * If creation is successful, the browser will be redirected to the 'view' page.
-     * @return mixed
+     * Вывод формы создания нового пользователя
+     * @return string|\yii\web\Response
+     * @throws \yii\base\Exception
      */
     public function actionCreate()
     {
-        $model = new User();
+        $model = new SignupForm();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        if ($model->load(Yii::$app->request->post()) && $model->register()) {
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
@@ -87,31 +94,13 @@ class UserController extends Controller
     }
 
     /**
-     * Updates an existing User model.
-     * If update is successful, the browser will be redirected to the 'view' page.
-     * @param integer $id
-     * @return mixed
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    public function actionUpdate($id)
-    {
-        $model = $this->findModel($id);
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
-        }
-
-        return $this->render('update', [
-            'model' => $model,
-        ]);
-    }
-
-    /**
-     * Deletes an existing User model.
-     * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param integer $id
-     * @return mixed
-     * @throws NotFoundHttpException if the model cannot be found
+     * Удаление пользователя
+     * @param $id
+     *
+     * @return \yii\web\Response
+     * @throws NotFoundHttpException
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
      */
     public function actionDelete($id)
     {
@@ -120,12 +109,35 @@ class UserController extends Controller
         return $this->redirect(['index']);
     }
 
+    public function actionProfile()
+    {
+        /** @var User $user */
+        $user = Yii::$app->user->identity;
+
+        $provider = new ActiveDataProvider([
+            'query' => Activity::findAll(['user_id' => $user->id]),
+            'pagination' => [
+                'validatePage' => false,
+            ],
+        ]);
+
+        $model = new UpdateUserForm(
+            $user->toArray(['username'])
+        );
+
+        if ($model->load(Yii::$app->request->post()) && $model->update($user)) {
+            Yii::$app->session->setFlash('success', 'Изменения успешно сохранены');
+        }
+
+        return $this->render('profile', compact('model', 'provider'));
+    }
+
     /**
-     * Finds the User model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param integer $id
-     * @return User the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
+     * Метод помощник для поиска пользователя с генерацией 404 ошибки
+     * @param $id
+     *
+     * @return User|null
+     * @throws NotFoundHttpException
      */
     protected function findModel($id)
     {

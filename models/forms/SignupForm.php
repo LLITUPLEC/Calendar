@@ -49,6 +49,7 @@ class SignupForm extends Model
      * Попытка регистрации пользователя
      * @return bool
      * @throws Exception
+     * @throws \Exception
      */
     public function register()
     {
@@ -65,6 +66,13 @@ class SignupForm extends Model
             $user->password = $this->password;
 
             if ($user->save()) {
+                // назначение пользователю базовой роли User
+                $auth = Yii::$app->authManager;
+
+                $role = $auth->getRole('user');
+
+                $auth->assign($role, $user->id);
+
                 return Yii::$app->user->login($user);
             }
         }

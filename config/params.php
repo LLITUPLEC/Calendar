@@ -4,5 +4,5 @@ return [
     'adminEmail' => 'admin@example.com',
     'senderEmail' => 'noreply@example.com',
     'senderName' => 'Example.com mailer',
-    'dateFormat' => 'Y-m-d', // Yii::$app->params['dateFormat'] => 'Y-m-d'
+    'dateFormat' => 'php:Y-m-d', // Yii::$app->params['dateFormat'] => 'Y-m-d'
 ];

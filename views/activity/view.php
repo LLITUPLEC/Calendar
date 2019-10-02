@@ -47,7 +47,7 @@ use yii\widgets\DetailView;
         ],
         [
             'attribute' => 'date_end',
-            'format' => ['date', 'php:Y'], // форматирование даты
+            'format' => ['date', Yii::$app->params['dateFormat']], // форматирование даты (из params)
             //'value' => function (Activity $model) {
             //    return Yii::$app->formatter->asDate($model->date_end, 'php:Y');
             //}
@@ -61,5 +61,7 @@ use yii\widgets\DetailView;
         'description',
         'repeat:boolean', // Yii::$app->formatter->asBoolean(...)
         'blocked:boolean',
+        'created_at:date',
+        'updated_at:date',
     ],
 ]); ?>

@@ -7,6 +7,7 @@ use app\models\forms\SignupForm;
 use Yii;
 use yii\captcha\CaptchaAction;
 use yii\filters\AccessControl;
+use yii\helpers\Url;
 use yii\web\Controller;
 use yii\web\ErrorAction;
 use yii\web\Response;
